@@ -7,6 +7,11 @@ The latest release will always be downloadable from [here](https://github.com/CT
 
 If you are updating to 0.6 from an older version, you will need to make sure you update vJoy to the recommended version.
 
+### Compile
+Open with Code::Blocks and build, or use MinGW.
+
+I don't think this is cross platform (vJoy is Windows Only). Try Wine maybe?
+
 ### Setup and Usage
 Firstly, if you want to be able to register the circle pad or touch screen as a joystick you will need to install [vJoy (version 2.0.5-120515 is preferable)](http://sourceforge.net/projects/vjoystick/files/Beta%202.x/2.0.5-120515/vJoy_205_050515.exe/download). However, if you just want to use keyboard buttons, this is not necessary.
 

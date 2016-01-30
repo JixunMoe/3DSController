@@ -14,7 +14,9 @@ BOOL updateJoystick(void) {
 	
 	iReport.bDevice = id;
 	
+    //printf("updateJoystick: ");
 	if(!UpdateVJD(iInterface, (PVOID)&iReport)) {
+        //printf("fail\n");
 		/*printf("vJoy device %d failed - try to enable device\n", iInterface);
 		printf("PRESS ENTER TO CONTINUE\n");
 		getchar();
@@ -22,6 +24,7 @@ BOOL updateJoystick(void) {
 		ContinuousPOV = (BOOL)GetVJDContPovNumber(iInterface);*/
 		return false;
 	}
-	
+    
+	//printf("ok\n");
 	return true;
 }

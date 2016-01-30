@@ -37,6 +37,15 @@
 	}\
 } while(0)
 
+#define handleDPAD(DSKey, BIT_POS) do {\
+    if (joyHats == -1)\
+        joyHats = currentKeys & DSKey ? BIT_POS : -1;\
+} while(0)
+
+#define handleDPAD2(v, DSKey, BIT_POS) do {\
+    v = currentKeys & DSKey ? BIT_POS : -1;\
+} while(0)
+
 #define BIT(n) (1 << (n))
 
 typedef enum {
@@ -63,7 +72,7 @@ typedef enum {
 	KEY_CPAD_LEFT = BIT(29), // circle pad
 	KEY_CPAD_UP = BIT(30), // circle pad
 	KEY_CPAD_DOWN = BIT(31), // circle pad
-	
+
 	// Generic catch-all directions
 	KEY_UP = KEY_DUP | KEY_CPAD_UP,
 	KEY_DOWN = KEY_DDOWN | KEY_CPAD_DOWN,
@@ -102,6 +111,5 @@ extern struct cStick cStick;
 extern struct touch lastTouch;
 extern struct touch currentTouch;
 
-inline unsigned int mapVirtualKey(unsigned int key);
 void simulateKeyNewpress(unsigned int key);
 void simulateKeyRelease(unsigned int key);

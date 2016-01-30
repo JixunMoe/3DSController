@@ -14,6 +14,7 @@
 #define joyRX iReport.wAxisXRot
 #define joyRY iReport.wAxisYRot
 #define joyButtons iReport.lButtons
+#define joyHats iReport.bHats
 
 #define JOY_MIDDLE (128 * 128)
 
