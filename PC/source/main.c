@@ -134,7 +134,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 				handleKey(KEY_DDOWN, settings.Down);
                 */
                 // Modify iReport.bHats instead.
-                iReport.bHats = -1;
+				iReport.bHats = -1;
 				handleDPAD(KEY_DUP, 0);
 				handleDPAD(KEY_DRIGHT, 1);
 				handleDPAD(KEY_DDOWN, 2);
@@ -175,13 +175,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 						}
 					}
 					else if(settings.touch == joystick1) {
-						joyX = (currentTouch.x) * 128;
-						joyY = (currentTouch.y) * 128;
+						joyX = (currentTouch.x) * AXIS_MAX;
+						joyY = (currentTouch.y) * AXIS_MAX;
 					}
 
 					else if(settings.touch == joystick2) {
-						joyRX = (currentTouch.x) * 128;
-						joyRY = (currentTouch.y) * 128;
+						joyRX = (currentTouch.x) * AXIS_MAX;
+						joyRY = (currentTouch.y) * AXIS_MAX;
 					}
 					else {
 						handleKey(KEY_TOUCH, settings.Tap);
@@ -197,13 +197,25 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 					SetCursorPos(p.x + (circlePad.x * settings.mouseSpeed) / 32, p.y - (circlePad.y * settings.mouseSpeed) / 32);
 				}
 				else if(settings.circlePad == joystick1) {
-					joyX = (circlePad.x + 128) * 128;
-					joyY = (128 - circlePad.y) * 128;
-				}
+					joyX = (circlePad.x + 156) * 101;
+					joyY = (169 - circlePad.y) * 100;
 
+					if (joyX < 0) {
+                        printf("[WARN] joyX out of range, raw %d, mapped %ld\n", circlePad.x, joyX);
+                        joyX = 0;
+					}
+
+					if (joyY < 0) {
+                        printf("[WARN] joyY out of range, raw %d, mapped %ld\n", circlePad.y, joyY);
+                        joyY = 0;
+					}
+
+                    // printf("raw:  (%d, %d)\n", circlePad.x, circlePad.y);
+                    // printf("calc: (%ld, %ld)\n", joyX, joyY);
+				}
 				else if(settings.circlePad == joystick2) {
-					joyRX = (circlePad.x + 128) * 128;
-					joyRY = (128 - circlePad.y) * 128;
+					joyRX = (circlePad.x + 128) * settings.axisMax + settings.axisOffset;
+					joyRY = (128 - circlePad.y) * settings.axisMax + settings.axisOffset;
 				}
 
 				if(settings.cStick == mouse) {
@@ -214,15 +226,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 					GetCursorPos(&p);
 					SetCursorPos(p.x + (cStick.x * settings.mouseSpeed) / 32, p.y - (cStick.y * settings.mouseSpeed) / 32);
 				}
-
 				else if(settings.cStick == joystick1) {
-					joyX = (cStick.x + 128) * 128;
-					joyY = (128 - cStick.y) * 128;
+					joyX = (cStick.x + 128) * settings.axisMax + settings.axisOffset;
+					joyY = (128 - cStick.y) * settings.axisMax + settings.axisOffset;
 				}
-
 				else if(settings.cStick == joystick2) {
-					joyRX = (cStick.x + 128) * 128;
-					joyRY = (128 - cStick.y) * 128;
+					joyRX = (cStick.x + 128) * settings.axisMax + settings.axisOffset;
+					joyRY = (128 - cStick.y) * settings.axisMax + settings.axisOffset;
 				}
 
 				break;

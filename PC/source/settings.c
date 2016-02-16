@@ -16,6 +16,8 @@ struct settings defaultSettings = {
 	cStick: joystick2,
 	touch: mouse,
 	mouseSpeed: 4,
+	axisMax: 128,
+	axisOffset: 0,
 	A: { 1, {'A'} },
 	B: { 1, {'B'} },
 	X: { 1, {'X'} },
@@ -37,7 +39,8 @@ unsigned int readNumber (char *str) {
     if (str[0] == '0' && str[1] == 'x') {
         // HEX
         unsigned int x = 0;
-        for (unsigned int i = 2; str[i]; i++) {
+        unsigned int i = 2;
+        for (; str[i]; i++) {
             x <<= 4;
 
             if (str[i] >= '0' && str[i] <= '9') {
@@ -47,7 +50,8 @@ unsigned int readNumber (char *str) {
             } else if (str[i] >= 'A' && str[i] <= 'F') {
                 x += (str[i] - 'A' + 10);
             } else {
-                error("readNumber\nInvalid hex number in config file");
+                printf("[WARN] readNumber: Invalid hex number in config file, ignore %c \n", str[i]);
+                x >>= 4;
             }
         }
         return x;
@@ -157,6 +161,13 @@ bool readSettings(void) {
 
 	if(getSetting("Throttle: ", buffer, setting)) {
 		sscanf(setting, "%d", &settings.throttle);
+	}
+
+	if(getSetting("AxisMax: ", buffer, setting)) {
+		sscanf(setting, "%d", &settings.axisMax);
+		settings.axisOffset = (128 - settings.axisMax);
+
+		printf("\nAxis offset: %d", settings.axisOffset);
 	}
 
 	if(getSetting("Circle Pad: ", buffer, setting)) {
