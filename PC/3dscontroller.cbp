@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="D:\git\3DSController\PC\bin\Debug\xboxController" />
+				<Option parameters="D:\git\3DSController\build\PC\config\Ori" />
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="source" />

@@ -148,11 +148,16 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 				handleKey(KEY_R, settings.R);
 				handleKey(KEY_L, settings.L);
 				if (settings.triggerAsAxis) {
-                    // Not tested as I have not progressed that far
-                    handleAxis(iReport.wAxisZRot, KEY_ZL, 0, 0x4000);
-
-                    // Works!
-                    handleAxis(iReport.wAxisZ,    KEY_ZR, 0, 0x4000);
+                    // Due to lack support of 9/10th axis emulation,
+                    // It's unable to emulate LT and RT for game
+                    // Ori and the Blind Forest.
+                    if (currentKeys & KEY_ZL) {
+                        iReport.wAxisZ = -1;
+                    } else if (currentKeys & KEY_ZR) {
+                        iReport.wAxisZ = +1;
+                    } else {
+                        iReport.wAxisZ = 0x4000;
+                    }
 				} else {
                     handleKey(KEY_ZL, settings.ZL);
                     handleKey(KEY_ZR, settings.ZR);
