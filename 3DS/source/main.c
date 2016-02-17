@@ -19,10 +19,10 @@ void hang(char *message) {
 		
 		clearScreen();
 		drawString(10, 10, "%s", message);
-		drawString(10, 20, "Start and Select to exit");
+		// drawString(10, 20, "Start and Select to exit");
 		
-		u32 kHeld = hidKeysHeld();
-		if((kHeld & KEY_START) && (kHeld & KEY_SELECT)) longjmp(exitJmp, 1);
+		// u32 kHeld = hidKeysHeld();
+		// if((kHeld & KEY_START) && (kHeld & KEY_SELECT)) longjmp(exitJmp, 1);
 		
 		gfxFlushBuffers();
 		gspWaitForVBlank();
@@ -139,7 +139,7 @@ int main(void) {
 		
 		//receiveBuffer(sizeof(struct packet));
 		
-		if((kHeld & KEY_START) && (kHeld & KEY_SELECT)) longjmp(exitJmp, 1);
+		// if((kHeld & KEY_START) && (kHeld & KEY_SELECT)) longjmp(exitJmp, 1);
 		
 		gfxFlushBuffers();
 		gspWaitForVBlank();

@@ -16,8 +16,7 @@ struct settings defaultSettings = {
 	cStick: joystick2,
 	touch: mouse,
 	mouseSpeed: 4,
-	axisMax: 128,
-	axisOffset: 0,
+	triggerAsAxis: 1,
 	A: { 1, {'A'} },
 	B: { 1, {'B'} },
 	X: { 1, {'X'} },
@@ -129,14 +128,15 @@ static struct keyMapping getButton(char *string) {
 	return k;
 }
 
-bool readSettings(void) {
+bool readSettings(LPSTR lpConfigFile) {
 	FILE *f;
 	size_t len = 0;
 	char *buffer = NULL;
 
 	memcpy(&settings, &defaultSettings, sizeof(struct settings));
 
-	f = fopen("3DSController.ini", "rb");
+    printf("Read config from: %s\n", lpConfigFile);
+	f = fopen(lpConfigFile, "rb");
 	if(!f) {
 		return false;
 	}
@@ -159,15 +159,12 @@ bool readSettings(void) {
 		sscanf(setting, "%d", &settings.port);
 	}
 
-	if(getSetting("Throttle: ", buffer, setting)) {
-		sscanf(setting, "%d", &settings.throttle);
+	if(getSetting("TriggerAsAxis: ", buffer, setting)) {
+		sscanf(setting, "%d", &settings.triggerAsAxis);
 	}
 
-	if(getSetting("AxisMax: ", buffer, setting)) {
-		sscanf(setting, "%d", &settings.axisMax);
-		settings.axisOffset = (128 - settings.axisMax);
-
-		printf("\nAxis offset: %d", settings.axisOffset);
+	if(getSetting("Throttle: ", buffer, setting)) {
+		sscanf(setting, "%d", &settings.throttle);
 	}
 
 	if(getSetting("Circle Pad: ", buffer, setting)) {

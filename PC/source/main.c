@@ -13,6 +13,10 @@
 #include "settings.h"
 #include "keyboard.h"
 
+int mi_x, ma_x;
+int mi_y, ma_y;
+bool readSettings_local ();
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow) {
 	printf("3DS Controller Server %.1f\n", VERSION);
     printf("Mod by Jixun: ppsspp for windows support\n");
@@ -56,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 		vJoy = false;
 	}
 
-	if(!readSettings()) {
+	if(!readSettings_local()) {
 		printf("Couldn't read settings file, using default key bindings.\n");
 	}
 
@@ -117,6 +121,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 				lastKeys = currentKeys;
 				if(currentKeys & KEY_TOUCH) lastTouch = currentTouch;
 
+				// printf("currentKeys: %08x\n", currentKeys);
 				memcpy(&currentKeys, &buffer.keys, 4);
 				memcpy(&circlePad, &buffer.circlePad, 4);
 				memcpy(&currentTouch, &buffer.touch, 4);
@@ -142,11 +147,18 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 
 				handleKey(KEY_R, settings.R);
 				handleKey(KEY_L, settings.L);
-				handleKey(KEY_ZR, settings.ZR);
-				handleKey(KEY_ZL, settings.ZL);
+				if (settings.triggerAsAxis) {
+                    // Not tested as I have not progressed that far
+                    handleAxis(iReport.wAxisZRot, KEY_ZL, 0, 0x4000);
+
+                    // Works!
+                    handleAxis(iReport.wAxisZ,    KEY_ZR, 0, 0x4000);
+				} else {
+                    handleKey(KEY_ZL, settings.ZL);
+                    handleKey(KEY_ZR, settings.ZR);
+				}
 				handleKey(KEY_X, settings.X);
 				handleKey(KEY_Y, settings.Y);
-
 				//handleKey(KEY_LID, 'I');
 
 				if(newpress(KEY_TOUCH)) {
@@ -175,13 +187,13 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 						}
 					}
 					else if(settings.touch == joystick1) {
-						joyX = (currentTouch.x) * AXIS_MAX;
-						joyY = (currentTouch.y) * AXIS_MAX;
+						joyX = (currentTouch.x) * 128;
+						joyY = (currentTouch.y) * 128;
 					}
 
 					else if(settings.touch == joystick2) {
-						joyRX = (currentTouch.x) * AXIS_MAX;
-						joyRY = (currentTouch.y) * AXIS_MAX;
+						joyRX = (currentTouch.x) * 128;
+						joyRY = (currentTouch.y) * 128;
 					}
 					else {
 						handleKey(KEY_TOUCH, settings.Tap);
@@ -214,8 +226,8 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
                     // printf("calc: (%ld, %ld)\n", joyX, joyY);
 				}
 				else if(settings.circlePad == joystick2) {
-					joyRX = (circlePad.x + 128) * settings.axisMax + settings.axisOffset;
-					joyRY = (128 - circlePad.y) * settings.axisMax + settings.axisOffset;
+					joyRX = (circlePad.x + 128) * 128;
+					joyRY = (128 - circlePad.y) * 128;
 				}
 
 				if(settings.cStick == mouse) {
@@ -227,12 +239,23 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 					SetCursorPos(p.x + (cStick.x * settings.mouseSpeed) / 32, p.y - (cStick.y * settings.mouseSpeed) / 32);
 				}
 				else if(settings.cStick == joystick1) {
-					joyX = (cStick.x + 128) * settings.axisMax + settings.axisOffset;
-					joyY = (128 - cStick.y) * settings.axisMax + settings.axisOffset;
+					joyX = (cStick.x + 146) * 224;
+					joyY = (146 - cStick.y) * 224;
 				}
 				else if(settings.cStick == joystick2) {
-					joyRX = (cStick.x + 128) * settings.axisMax + settings.axisOffset;
-					joyRY = (128 - cStick.y) * settings.axisMax + settings.axisOffset;
+					joyRX = (cStick.x + 146) * 224;
+					joyRY = (146 - cStick.y) * 224;
+
+					/*
+					mi_x = min(cStick.x, mi_x);
+					mi_y = min(cStick.y, mi_y);
+					ma_x = max(cStick.x, ma_x);
+					ma_y = max(cStick.y, ma_y);
+
+                    printf("raw:  (%d, %d)\n", cStick.x, cStick.y);
+                    printf("calc: (%ld, %ld)\n", joyRX, joyRY);
+                    printf("min(%d, %d); max(%d, %d);\n", mi_x, mi_y, ma_x, ma_y);
+                    */
 				}
 
 				break;
@@ -243,4 +266,43 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 
 	error("accept()");
 	return 0;
+}
+
+LPSTR W2A(LPWSTR pString, size_t pad) {
+    int nSize = wcslen(pString);
+    size_t charsNeeded = WideCharToMultiByte(CP_ACP, 0, pString, nSize, NULL, 0, NULL, NULL);
+
+    char* buffer = malloc(charsNeeded + pad);
+    WideCharToMultiByte(CP_ACP, 0, pString, nSize, buffer, charsNeeded, NULL, NULL);
+    buffer[charsNeeded] = '\x00';
+    return buffer;
+}
+
+bool readSettings_local () {
+    LPWSTR szDefault = L"3DSController";
+    LPWSTR *szArglist;
+    LPWSTR lpConfigPath;
+    int nArgs;
+    int i;
+    szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+
+    if (nArgs > 1) {
+        lpConfigPath = szArglist[1];
+    } else {
+        lpConfigPath = szDefault;
+    }
+
+    LPSTR lpPath = W2A(lpConfigPath, 5);
+    i = strlen(lpPath);
+    lpPath[i] = '.';
+    lpPath[i + 1] = 'i';
+    lpPath[i + 2] = 'n';
+    lpPath[i + 3] = 'i';
+    lpPath[i + 4] = '\x00';
+    bool r = readSettings(lpPath);
+
+    free(lpPath);
+    LocalFree(szArglist);
+
+    return r;
 }

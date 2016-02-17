@@ -37,6 +37,10 @@
 	}\
 } while(0)
 
+#define handleAxis(AXIS, DSKey, VAL_ON, VAL_OFF) do {\
+    AXIS = (currentKeys & DSKey) ? VAL_ON : VAL_OFF; \
+} while (0)
+
 #define handleDPAD(DSKey, BIT_POS) do {\
     if (joyHats == -1)\
         joyHats = currentKeys & DSKey ? BIT_POS : -1;\
