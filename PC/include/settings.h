@@ -19,6 +19,7 @@ struct settings {
 	int mouseSpeed;
 	int triggerAsAxis;
 	struct keyMapping A, B, X, Y, L, R, ZL, ZR, Left, Right, Up, Down, Start, Select, Tap;
+	int bEnableJoy;
 };
 
 extern struct settings settings;

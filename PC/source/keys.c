@@ -45,6 +45,10 @@ void simulateKeyNewpress(unsigned int key) {
 		ip.ki.dwExtraInfo = 0;
 		ip.ki.wVk = 0;
 		ip.ki.dwFlags = KEYEVENTF_SCANCODE;
+
+		if (key == VK_UP || key == VK_DOWN || key == VK_LEFT || key == VK_RIGHT) {
+            ip.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+		}
 	}
 
 	SendInput(1, &ip, sizeof(INPUT));
@@ -68,6 +72,10 @@ void simulateKeyRelease(unsigned int key) {
 		ip.ki.dwExtraInfo = 0;
 		ip.ki.wVk = 0;
 		ip.ki.dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
+
+		if (key == VK_UP || key == VK_DOWN || key == VK_LEFT || key == VK_RIGHT) {
+            ip.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+		}
 	}
 
 	SendInput(1, &ip, sizeof(INPUT));

@@ -17,14 +17,14 @@ struct settings defaultSettings = {
 	touch: mouse,
 	mouseSpeed: 4,
 	triggerAsAxis: 1,
-	A: { 1, {'A'} },
-	B: { 1, {'B'} },
-	X: { 1, {'X'} },
-	Y: { 1, {'Y'} },
-	L: { 1, {'L'} },
-	R: { 1, {'R'} },
-	ZL: { 1, {'Q'} },
-	ZR: { 1, {'W'} },
+	A: { 0, {'A'} },
+	B: { 0, {'B'} },
+	X: { 0, {'X'} },
+	Y: { 0, {'Y'} },
+	L: { 0, {'L'} },
+	R: { 0, {'R'} },
+	ZL: { 0, {'Q'} },
+	ZR: { 0, {'W'} },
 	Left: { 0, {VK_LEFT} },
 	Right: { 0, {VK_RIGHT} },
 	Up: { 0, {VK_UP} },
@@ -32,6 +32,7 @@ struct settings defaultSettings = {
 	Start: { 0, {VK_RETURN} },
 	Select: { 0, {VK_BACK} },
 	Tap: { 0, {'T'} },
+	bEnableJoy: 1
 };
 
 unsigned int readNumber (char *str) {
@@ -161,6 +162,10 @@ bool readSettings(LPSTR lpConfigFile) {
 
 	if(getSetting("TriggerAsAxis: ", buffer, setting)) {
 		sscanf(setting, "%d", &settings.triggerAsAxis);
+	}
+
+	if(getSetting("EnableJoy: ", buffer, setting)) {
+        sscanf(setting, "%d", &settings.bEnableJoy);
 	}
 
 	if(getSetting("Throttle: ", buffer, setting)) {

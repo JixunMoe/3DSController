@@ -18,6 +18,10 @@ int mi_y, ma_y;
 bool readSettings_local ();
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow) {
+	if(!readSettings_local()) {
+		printf("Couldn't read settings file, using default key bindings.\n");
+	}
+
 	printf("3DS Controller Server %.1f\n", VERSION);
     printf("Mod by Jixun: ppsspp for windows support\n");
 
@@ -27,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 	double widthMultiplier = screenWidth / 320.0;
 	double heightMultiplier = screenHeight / 240.0;
 
-	bool vJoy = true;
+	bool vJoy = !!settings.bEnableJoy;
 	UINT iInterface = 1;
 
 	iReport.wAxisX = JOY_MIDDLE;
@@ -58,10 +62,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 	if(vJoy && !updateJoystick()) {
 		printf("vJoy failed (3)! Buttons will still work, but joystick won't work.\n");
 		vJoy = false;
-	}
-
-	if(!readSettings_local()) {
-		printf("Couldn't read settings file, using default key bindings.\n");
 	}
 
 	initNetwork();
@@ -132,22 +132,22 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmd, int nShow)
 				handleKey(KEY_SELECT, settings.Select);
 				handleKey(KEY_START, settings.Start);
 
-                /*
-				handleKey(KEY_DRIGHT, settings.Right);
-				handleKey(KEY_DLEFT, settings.Left);
-				handleKey(KEY_DUP, settings.Up);
-				handleKey(KEY_DDOWN, settings.Down);
-                */
-                // Modify iReport.bHats instead.
-				iReport.bHats = -1;
-				handleDPAD(KEY_DUP, 0);
-				handleDPAD(KEY_DRIGHT, 1);
-				handleDPAD(KEY_DDOWN, 2);
-				handleDPAD(KEY_DLEFT, 3);
+				if (settings.bEnableJoy) {
+                    iReport.bHats = -1;
+                    handleDPAD(KEY_DUP, 0);
+                    handleDPAD(KEY_DRIGHT, 1);
+                    handleDPAD(KEY_DDOWN, 2);
+                    handleDPAD(KEY_DLEFT, 3);
+				} else {
+                    handleKey(KEY_DRIGHT, settings.Right);
+                    handleKey(KEY_DLEFT, settings.Left);
+                    handleKey(KEY_DUP, settings.Up);
+                    handleKey(KEY_DDOWN, settings.Down);
+				}
 
 				handleKey(KEY_R, settings.R);
 				handleKey(KEY_L, settings.L);
-				if (settings.triggerAsAxis) {
+				if (settings.triggerAsAxis && settings.bEnableJoy) {
                     // Due to lack support of 9/10th axis emulation,
                     // It's unable to emulate LT and RT for game
                     // Ori and the Blind Forest.
